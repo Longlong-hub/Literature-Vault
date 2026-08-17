@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>诗云 · 品赏</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scrollbar-color: #b9a887 transparent; }
+  body {
+    min-height: 100vh;
+    background:
+      radial-gradient(ellipse 90% 60% at 50% -10%, rgba(160,120,60,.12), transparent 62%),
+      linear-gradient(165deg, #f7f2e6 0%, #f0e8d5 55%, #eaddc4 100%);
+    font-family: "Songti SC", "SimSun", "STSong", "Noto Serif SC", serif;
+    color: #3a3228;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 30px 16px 56px;
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .5;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 0.35 0 0 0 0 0.3 0 0 0 0 0.2 0 0 0 0.06 0'/></filter><rect width='120' height='120' filter='url(%23n)'/></svg>");
+  }
+  header { text-align: center; margin-bottom: 26px; position: relative; }
+  h1 {
+    font-size: 64px; letter-spacing: 30px; text-indent: 30px;
+    font-weight: 700; color: #2c261c;
+    text-shadow: 3px 3px 0 rgba(160,90,60,.12);
+  }
+  .sub { margin-top: 6px; color: #8a7a5f; letter-spacing: 8px; text-indent: 8px; font-size: 14px; }
+  .gear {
+    width: 40px; height: 40px; border-radius: 50%; border: 1px solid #c9b28a; cursor: pointer;
+    background: rgba(255,252,244,.6); color: #8a7a5f; font-size: 18px; line-height: 38px; text-align: center;
+  }
+  .gear:hover { background: rgba(255,252,244,.95); }
+  .bar { display: flex; align-items: center; gap: 22px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
+  .seal {
+    width: 92px; height: 92px; border-radius: 50%; border: none; cursor: pointer;
+    background: radial-gradient(circle at 34% 26%, #bd4d3e, #8f2f22 72%);
+    color: #f7efe0; font-size: 38px; font-family: inherit;
+    box-shadow: 0 6px 16px rgba(140,60,40,.35), inset 0 2px 5px rgba(255,235,210,.35);
+    transition: transform .15s, box-shadow .15s; user-select: none;
+  }
+  .seal:hover { transform: translateY(-3px) scale(1.04); box-shadow: 0 10px 22px rgba(140,60,40,.45); }
+  .seal:active { transform: scale(.96); }
+  .seal .tag { display: block; font-size: 12px; letter-spacing: 5px; text-indent: 5px; margin-top: -6px; }
+  .gear {
+    position: absolute; top: 8px; right: 14px;
+    width: 34px; height: 34px; border-radius: 50%; border: 1px solid #d8c9a8; cursor: pointer;
+    background: rgba(255,252,244,.55); color: #a99c82; font-size: 15px; line-height: 32px; text-align: center;
+  }
+  .gear:hover { background: rgba(255,252,244,.95); color: #6d5c42; }
+  .stage {
+    width: min(980px, 96vw); min-height: 540px;
+    background: rgba(255,252,244,.72);
+    border: 1px solid rgba(150,120,80,.28);
+    border-radius: 14px;
+    box-shadow: 0 12px 34px rgba(90,70,40,.16), inset 0 0 60px rgba(255,248,228,.6);
+    padding: 20px; display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .stage canvas { max-width: 100%; height: auto; display: block; border-radius: 8px; }
+  .stage .frame-note { position: absolute; bottom: 10px; right: 16px; color: #b3a386; font-size: 12px; letter-spacing: 3px; }
+  .card { max-width: 760px; width: 100%; text-align: center; padding: 26px 30px; }
+  .card .verse {
+    font-size: clamp(22px, 4.2vw, 38px); line-height: 2; letter-spacing: 2px; color: #2c261c; margin-bottom: 10px;
+    font-weight: 600;
+  }
+  .card .src { color: #8a7a5f; font-size: 14px; letter-spacing: 1px; margin-bottom: 20px; }
+  .card .rv {
+    text-align: left; color: #5d5142; font-size: 14.5px; line-height: 2;
+    border-left: 3px solid #a03a2e; padding: 2px 2px 2px 16px;
+    background: rgba(255,252,244,.5); border-radius: 0 8px 8px 0;
+  }
+  .card .rv .rv-src { display: block; margin-top: 10px; color: #a59b8a; font-size: 12px; letter-spacing: 2px; }
+  .card .rv .rv-machine { display: block; margin-top: 10px; color: #8a7a5f; font-size: 12px; letter-spacing: 1px; }
+  .status { margin-top: 16px; color: #9a8c74; font-size: 13px; letter-spacing: 2px; min-height: 20px; text-align: center; }
+  footer { margin-top: 26px; color: #a99c82; font-size: 12px; letter-spacing: 3px; }
+
+  .pick-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; justify-content: center; }
+  .pick-row select {
+    min-width: 320px; max-width: 90vw; padding: 8px 12px; border: 1px solid #d8c9a8; border-radius: 8px;
+    background: rgba(255,252,244,.85); color: #3a3228; font-family: inherit; font-size: 14px;
+  }
+  .pick-row label { color: #8a7a5f; font-size: 13px; letter-spacing: 3px; }
+  .multi-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
+  .mini-btn {
+    padding: 5px 14px; border: 1px solid #d8c9a8; border-radius: 999px; cursor: pointer;
+    background: rgba(255,252,244,.75); color: #6d5c42; font-family: inherit; font-size: 12.5px; letter-spacing: 2px;
+    transition: background .15s, color .15s;
+  }
+  .mini-btn:hover:not(:disabled) { background: #f0e8d5; color: #3a3228; }
+  .mini-btn:disabled { opacity: .45; cursor: default; }
+  .fulltext {
+    text-align: left; margin-top: 14px; padding: 14px 18px; border-radius: 8px;
+    background: rgba(255,252,244,.55); border: 1px dashed rgba(150,120,80,.35);
+    font-size: 15px; line-height: 2.1; color: #3a3228; white-space: pre-wrap; word-break: break-all;
+  }
+  .fulltext .ft-tip { color: #b3a386; font-size: 11px; letter-spacing: 2px; display: block; margin-bottom: 6px; }
+
+  .sheet {
+    position: fixed; inset: 0; background: rgba(40,32,20,.35); display: none;
+    align-items: center; justify-content: center; z-index: 20;
+  }
+  .sheet.open { display: flex; }
+  .sheet-panel {
+    width: min(460px, 92vw); background: #faf6ec; border-radius: 14px; padding: 26px 28px;
+    box-shadow: 0 18px 50px rgba(60,40,20,.4); border: 1px solid #e3d6b8;
+    max-height: 88vh; overflow: auto;
+  }
+  .sheet-panel h2 { font-size: 20px; letter-spacing: 6px; color: #2c261c; margin-bottom: 18px; }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 13px; color: #8a7a5f; letter-spacing: 2px; margin-bottom: 5px; }
+  .field input, .field select {
+    width: 100%; padding: 8px 10px; border: 1px solid #d8c9a8; border-radius: 6px;
+    background: #fffdf6; color: #3a3228; font-family: inherit; font-size: 14px;
+  }
+  .field .hint { display: block; margin-top: 4px; font-size: 11px; color: #b3a386; line-height: 1.7; }
+  .panel-actions { display: flex; gap: 12px; margin-top: 20px; }
+  .btn {
+    flex: 1; padding: 9px 0; border: none; border-radius: 6px; cursor: pointer;
+    font-family: inherit; font-size: 15px; letter-spacing: 4px;
+    background: linear-gradient(145deg, #b84a3c, #8f2f22); color: #f7efe0;
+  }
+  .btn.ghost { background: #efe6d2; color: #6d5c42; }
+  .ok-tip { color: #5c8a4e; font-size: 12px; margin-top: 8px; letter-spacing: 1px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>诗云</h1>
+  <div class="sub">品其字 · 赏其魂</div>
+  <button class="gear" id="btnGear" title="设置">⚙</button>
+</header>
+
+<div class="bar">
+  <button class="seal" id="btnPin">品<span class="tag">词云</span></button>
+  <button class="seal" id="btnApp">赏<span class="tag">诗句</span></button>
+</div>
+
+<div class="pick-row">
+  <label for="poemPick">自选一首</label>
+  <select id="poemPick">
+    <option value="">—— 随机拾取，或从下面选一首 ——</option>
+  </select>
+  <button class="mini-btn" id="btnOpenFile" title="选择本地 .md 文件赏析">选择文件</button>
+  <input type="file" id="filePick" accept=".md" multiple style="display:none">
+  <button class="mini-btn" id="btnOpenDir" title="选择本地目录（如 raw/ 或 Wiki 目录）赏析">选择目录</button>
+  <input type="file" id="dirPick" webkitdirectory multiple style="display:none">
+</div>
+
+<div class="stage" id="stage">
+  <canvas id="wc" width="900" height="700" style="display:none"></canvas>
+  <div class="card" id="card" style="display:none"></div>
+  <span class="frame-note" id="frameNote"></span>
+</div>
+
+<div class="status" id="status">点击「品」生成诗字形词云 · 点击「赏」拾取一句好诗</div>
+<footer>龙川诗集 · 龙川武生</footer>
+
+<div class="sheet" id="sheet">
+  <div class="sheet-panel">
+    <h2>设 置</h2>
+    <div class="field">
+      <label>数据源</label>
+      <select id="cfgSource">
+        <option value="auto">自动（优先 Obsidian API）</option>
+        <option value="obsidian">Obsidian Local REST API</option>
+        <option value="local">本地文件直读</option>
+      </select>
+      <span class="hint">Obsidian API 需 Obsidian 运行中并启用 Local REST API 插件；本地直读永远可用（Obsidian 保存即上盘，实时性无差别）。GitHub 远程仅作备份，走 GitHub 有推送延迟且需 token，故不设为数据源。</span>
+    </div>
+    <div class="field">
+      <label>词云字形（掩码）</label>
+      <select id="cfgMask">
+        <option value="诗字剪影.png">诗字剪影</option>
+        <option value="剪影.png">剪影</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>大模型赏析（可选）</label>
+      <input id="cfgAuthor" placeholder="作者名（AI 赏析以此称呼）">
+      <input id="cfgBase" placeholder="API Base，如 https://api.openai.com/v1">
+      <input id="cfgKey" type="password" placeholder="API Key">
+      <input id="cfgModel" placeholder="模型名，如 gpt-4o-mini">
+      <span class="hint">启用后「赏」会先展示收录赏析，再让大模型针对所选诗句写一则即时赏析。Key 仅保存在本机 诗云/config.json（不入 git）。留空则使用启发式赏析。</span>
+    </div>
+    <div class="panel-actions">
+      <button class="btn ghost" id="cfgCancel">取 消</button>
+      <button class="btn" id="cfgSave">保 存</button>
+    </div>
+    <div class="ok-tip" id="cfgTip"></div>
+  </div>
+</div>
+
+<script>
+let POEMS = null, REVIEWS = [];
+const PICKED = new Set();
+const state = { source: 'auto', mask: '诗字剪影.png', author: '', llm: { base: '', key: '', model: '' } };
+
+async function api(path, opt) {
+  const r = await fetch(path, opt);
+  if (!r.ok) throw new Error((await r.json()).error || r.status + '');
+  return r.json();
+}
+
+async function loadPoems() {
+  const d = await api('/api/poems');
+  POEMS = d.poems;
+  return d;
+}
+
+async function init() {
+  try {
+    const st = await api('/api/status');
+    state.source = st.source || 'auto';
+    state.author = st.author || '';
+    state.llm = { base: st.llm.base, key: '', model: st.llm.model };
+    document.getElementById('cfgSource').value = state.source;
+    if (st.author) document.getElementById('cfgAuthor').value = st.author;
+    if (st.llm.base) document.getElementById('cfgBase').value = st.llm.base;
+    if (st.llm.model) document.getElementById('cfgModel').value = st.llm.model;
+    document.getElementById('cfgTip').textContent = st.llmConfigured ? '已配置大模型' : '';
+  } catch { /* 忽略 */ }
+  try { REVIEWS = (await api('/api/reviews')).reviews; } catch { REVIEWS = []; }
+  try {
+    await loadPoems();
+    fillPoemPicker();
+  } catch { /* 忽略 */ }
+}
+
+/* ================= 品：词云 ================= */
+const CJK = ch => /[\u4e00-\u9fa5]/.test(ch);
+const ZH_STOP = new Set('的了是不在一他这那之而为人有等也没就都又及所其于个中上要下着过到对说看话像把被吧吗啊呢但这让从很还再'.split(''));
+const EN_STOP = new Set(('the a an and or of to in on for with is are was were be been i you he she we they it that this all my your our his her them as by at not no so but if then just like love will would can could').split(' '));
+
+/* 古诗词分词词典：参考 chinese-poetry 全宋词语料统计高频词（诗云/data/poem-words.json） */
+let DICT = null;
+async function loadDict() {
+  if (DICT) return DICT;
+  try {
+    const d = await (await fetch('data/poem-words.json')).json();
+    DICT = new Set(d.words);
+  } catch { DICT = new Set(); }
+  return DICT;
+}
+
+/* 正向最大匹配分词：词典优先（最长 4 字），未命中回退二元组合，再退单字；按标点分块防跨句误拼 */
+function segZh(line, dict) {
+  const out = [];
+  for (const raw of line.split(/[，,。；;！!？?、：\s]/)) {
+    const s = raw.replace(/[^\u4e00-\u9fa5]/g, '');
+    let i = 0;
+    while (i < s.length) {
+      let got = null;
+      for (let len = Math.min(4, s.length - i); len >= 2; len--) {
+        const w = s.substr(i, len);
+        if (dict.has(w)) { got = w; break; }
+      }
+      if (got) { out.push(got); i += got.length; continue; }
+      const a = s[i], b = s[i + 1];
+      if (i + 1 < s.length && CJK(a) && CJK(b) && !ZH_STOP.has(a) && !ZH_STOP.has(b)) {
+        out.push(a + b); i += 2;
+      } else {
+        if (CJK(a) && !ZH_STOP.has(a)) out.push(a);
+        i++;
+      }
+    }
+  }
+  return out;
+}
+
+async function tokenize(poems) {
+  const dict = await loadDict();
+  const en = new Map();
+  const zhCounts = new Map();
+  const add = (w, n) => zhCounts.set(w, (zhCounts.get(w) || 0) + n);
+  for (const p of poems) {
+    if (p.lang === 'zh') {
+      for (const l of p.lines || []) for (const w of segZh(l, dict)) add(w, 1);
+    } else {
+      const t = p.lines.join(' ').toLowerCase().replace(/[^a-z\s'-]/g, ' ');
+      for (const w of t.match(/[a-z]+(?:'[a-z]+)?/g) || []) {
+        if (w.length < 2 || EN_STOP.has(w)) continue;
+        en.set(w, (en.get(w) || 0) + 1);
+      }
+    }
+  }
+  for (const [w, n] of en) zhCounts.set(w, n);
+  return [...zhCounts.entries()].filter(([w]) => w.length <= 8)
+    .sort((a, b) => b[1] - a[1]).slice(0, 320);
+}
+
+const INK = ['#2b2723', '#3b342a', '#4c4030', '#5d4a35', '#33405a', '#6d3c2c', '#5c3520', '#454038'];
+
+function loadMaskImage(name) {
+  return new Promise((ok, no) => {
+    const im = new Image();
+    im.onload = () => ok(im);
+    im.onerror = () => no(new Error('掩码图加载失败: ' + name));
+    im.src = 'assets/' + name;
+  });
+}
+
+function buildMask(im, W, H) {
+  const cv = document.createElement('canvas');
+  cv.width = W; cv.height = H;
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, W, H);
+  const as = W / im.width, bs = H / im.height;
+  const s = Math.min(as, bs);
+  const dw = im.width * s, dh = im.height * s;
+  ctx.drawImage(im, (W - dw) / 2, (H - dh) / 2, dw, dh);
+  const { data, width } = ctx.getImageData(0, 0, W, H);
+  let n = 0, transparent = 0, hard = 0;
+  for (let i = 3; i < data.length; i += 16) {
+    n++;
+    if (data[i] < 255) transparent++;
+    if (data[i] > 40) hard++;
+  }
+  const alphaShape = transparent / n >= 0.10 && (n - hard) / n >= 0.08;
+  const CELL = 4, cw = Math.ceil(W / CELL), ch = Math.ceil(H / CELL);
+  const grid = new Uint8Array(cw * ch);
+  for (let gy = 0; gy < ch; gy++) for (let gx = 0; gx < cw; gx++) {
+    const x0 = gx * CELL, y0 = gy * CELL;
+    let dark = 0, total = 0;
+    for (let dy = 0; dy < CELL; dy += 2) for (let dx = 0; dx < CELL; dx += 2) {
+      const k = ((y0 + dy) * width + x0 + dx) * 4;
+      if (k >= data.length) continue;
+      total++;
+      const lum = (data[k] + data[k + 1] + data[k + 2]) / 3;
+      const on = alphaShape ? data[k + 3] > 40 : lum < 200;
+      if (on) dark++;
+    }
+    grid[gy * cw + gx] = total && dark / total > 0.55 ? 1 : 0;
+  }
+  return { grid, cw, ch, CELL, W, H };
+}
+
+function dilate(mask, rounds) {
+  const { grid, cw, ch } = mask;
+  for (let r = 0; r < rounds; r++) {
+    const ng = grid.slice();
+    for (let gy = 0; gy < ch; gy++) for (let gx = 0; gx < cw; gx++) {
+      if (grid[gy * cw + gx]) continue;
+      let near = false;
+      for (let dy = -1; dy <= 1 && !near; dy++) for (let dx = -1; dx <= 1; dx++) {
+        const yy = gy + dy, xx = gx + dx;
+        if (yy < 0 || yy >= ch || xx < 0 || xx >= cw) continue;
+        if (grid[yy * cw + xx]) { near = true; break; }
+      }
+      if (near) ng[gy * cw + gx] = 1;
+    }
+    grid.set(ng);
+  }
+}
+
+function rectInMask(mask, x, y, w, h) {
+  const x0 = Math.max(0, Math.floor(x / mask.CELL)), y0 = Math.max(0, Math.floor(y / mask.CELL));
+  const x1 = Math.min(mask.cw - 1, Math.ceil((x + w) / mask.CELL)), y1 = Math.min(mask.ch - 1, Math.ceil((y + h) / mask.CELL));
+  let bad = 0, tot = 0;
+  for (let gy = y0; gy <= y1; gy++) for (let gx = x0; gx <= x1; gx++) {
+    if (!mask.grid[gy * mask.cw + gx]) bad++;
+    tot++;
+  }
+  if (!tot) return false;
+  return bad / tot < 0.22;
+}
+
+function overlaps(placed, x, y, w, h) {
+  for (const r of placed)
+    if (x < r.x + r.w + 1.5 && x + w + 1.5 > r.x && y < r.y + r.h + 1.5 && y + h + 1.5 > r.y) return true;
+  return false;
+}
+
+async function drawCloud(words) {
+  const cv = document.getElementById('wc');
+  const W = cv.width, H = cv.height;
+  const ctx = cv.getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+  const im = await loadMaskImage(state.mask);
+  const mask = buildMask(im, W, H);
+  dilate(mask, 2);
+  const cells = [];
+  for (let gy = 0; gy < mask.ch; gy++) for (let gx = 0; gx < mask.cw; gx++)
+    if (mask.grid[gy * mask.cw + gx]) cells.push([gx, gy]);
+  const minN = words[words.length - 1].n, maxN = words[0].n;
+  const placed = [];
+  for (const w of words) {
+    const v = Math.max(0, Math.min(1, (Math.log(w.n) - Math.log(minN)) / (Math.log(maxN) - Math.log(minN))));
+    const size = Math.round(9 + v * 25);
+    ctx.font = `${size}px "KaiTi","STKaiti","楷体",serif`;
+    const tw = ctx.measureText(w.text).width + 2, th = size * 1.35;
+    const color = INK[Math.floor(Math.random() * INK.length)];
+    let put = null;
+    for (let t = 0; t < 1200; t++) {
+      const c = cells[(Math.random() * cells.length) | 0];
+      const cx = c[0] * mask.CELL + (Math.random() * 2 - 1) * mask.CELL * 2;
+      const cy = c[1] * mask.CELL + (Math.random() * 2 - 1) * mask.CELL * 2;
+      const x = cx - tw / 2, y = cy - th / 2;
+      if (overlaps(placed, x, y, tw, th)) continue;
+      if (!rectInMask(mask, x, y, tw, th)) continue;
+      put = { x, y }; break;
+    }
+    if (!put) continue;
+    placed.push({ x: put.x, y: put.y, w: tw, h: th });
+    ctx.fillStyle = color;
+    ctx.fillText(w.text, put.x + 1, put.y + 1 + size * 0.75);
+  }
+  document.getElementById('wc').dataset.placed = placed.length;
+  document.getElementById('frameNote').textContent = `掩码 ${state.mask} · ${placed.length}/${words.length} 词`;
+}
+
+async function showCloud() {
+  const st = document.getElementById('status');
+  st.textContent = '正在扫读诗集、统计词频……';
+  try {
+    const d = await loadPoems();
+    if (!document.getElementById('poemPick').options.length) fillPoemPicker();
+    const words = (await tokenize(d.poems)).map(([text, n]) => ({ text, n }));
+    if (!words.length) { st.textContent = '未读取到可统计的文本'; return; }
+    await drawCloud(words);
+    document.getElementById('wc').style.display = 'block';
+    document.getElementById('card').style.display = 'none';
+    document.getElementById('frameNote').textContent = `掩码 ${state.mask} · ${d.total} 首 · ${words.length} 词条`;
+    st.textContent = `数据源 ${d.source === 'obsidian' ? 'Obsidian API' : '本地直读'} · 共 ${d.total} 首 · 词条 ${words.length} 个 · 以「${state.mask.replace('.png', '')}」为形`;
+  } catch (e) { st.textContent = '加载失败：' + e.message; }
+}
+
+/* ================= 赏 ================= */
+const IMG_MAP = {
+  '月': ['月', '蟾', '桂'], '风': ['风'], '云': ['云', '霞'], '雨': ['雨'], '雪': ['雪', '霜'],
+  '花': ['花'], '水': ['水'], '江': ['江'], '山': ['山'], '海': ['海', '沧'],
+  '星': ['星', '辰'], '夜': ['夜', '暮'], '梦': ['梦'], '酒': ['酒', '醉'], '剑': ['剑'],
+  '月影': ['影'], '心': ['心'], '愁': ['愁'], '泪': ['泪'], '思': ['思'], '归': ['归'],
+  '灯': ['灯'], '歌': ['歌'], '春': ['春'], '秋': ['秋'], '冬': ['冬'], '日': ['日'], '天': ['天']
+};
+const IMG_NOTE = {
+  '月': '月色入句，清辉之下思念与孤寂一并铺开', '风': '风过无痕，却把万里愁绪吹至人前',
+  '云': '云卷云舒，聚散离合尽在其中', '雨': '雨声滴答，恰似心绪难以停歇',
+  '雪': '雪覆天地，一时皆白，心事却难澄明', '花': '花开有期，绚烂与凋零都在一念之间',
+  '水': '流水东去，一去不返的恰是光阴', '江': '江湖气象自雄，足以承载万里悲欢',
+  '山': '青山如屏，静看多少聚散往来', '海': '沧海无涯，正映人心之辽阔',
+  '星': '星子遥挂，是夜空中最远的执念', '夜': '夜色四合，掩去白昼喧嚣，心事方显',
+  '梦': '一梦浮生，虚实之间最是动人', '酒': '举杯之间，快意与愁绪同饮而下',
+  '剑': '剑光如电，快意恩仇只在方寸之间', '月影': '形影相吊，孤意顿生',
+  '心': '直写心曲，不作半点遮掩', '愁': '一个愁字，压得岁月也沉',
+  '泪': '泪落无声，悲欢都凝在这几滴之间', '思': '思念绵长，绕不开月圆与梦回',
+  '归': '归途迢迢，望断天涯路', '灯': '灯影摇曳，守着未眠之人',
+  '歌': '歌声起处，情绪便有出口', '春': '春风一度，万物皆生',
+  '秋': '秋意渐深，落叶与离愁同行', '冬': '冬寒料峭，更添清冷孤意',
+  '日': '日光流转，昼夜皆是光阴', '天': '抬头见天，胸中自有丘壑'
+};
+const THEME_NOTE = {
+  '情': '情语挚真，言浅而意深', '哲学': '思辨入诗，自有哲理余韵',
+  '人生': '阅尽千帆的体悟，沉稳通透', '自然': '以物写心，浑然天成',
+  '社会': '观照世事，笔带人间烟火', '历史': '怀古咏史，人事已换千番',
+  '自省': '剖白自心，清醒而有勇气', '日常': '于平常处拾得诗意'
+};
+const COLOR_W = ['金', '银', '红', '白', '青', '碧', '翠', '紫', '蓝', '黄', '朱', '墨'];
+const NUM_W = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '百', '千', '万'];
+
+function buildReason(text, poem) {
+  const parts = [];
+  const imgs = Object.entries(IMG_MAP).filter(([k, v]) => v.some(c => text.includes(c)));
+  if (imgs.length) parts.push(IMG_NOTE[imgs[Math.floor(Math.random() * imgs.length)][0]]);
+  const dou = text.match(/(.)\1/);
+  if (dou) parts.push(`「${dou[1]}」叠字回环，音节流转，读来余味悠长`);
+  const halves = text.split(/[，,。；;？?!！]/).filter(s => s.trim().length >= 2);
+  if (halves.length >= 2 && Math.abs(halves[0].trim().length - halves[1].trim().length) <= 1) parts.push('前后相称，自成对仗之工');
+  if (/[？?]$/.test(text) || /^(谁|何|几|莫|岂|为何)/.test(text.trim())) parts.push('以一问蓄势，把未尽之意抛与读者');
+  const cw = COLOR_W.find(c => text.includes(c));
+  if (cw) parts.push(`「${cw}」著色点睛，画面顿时鲜明`);
+  const nw = NUM_W.find(n => text.includes(n));
+  if (nw) parts.push(`「${nw}」数词入句，时空尺度被轻轻拉开`);
+  parts.push(THEME_NOTE[poem.theme] || '言辞凝练，意蕴悠远');
+  return [...new Set(parts)].slice(0, 3).join('。') + '。';
+}
+
+/* ---- 体裁判定与片段选取 ---- */
+const FORMS = ['近体诗', '词', '现代诗', '随吟', '英文诗'];
+
+function inferForm(p, stanzas) {
+  if (p.form && FORMS.includes(p.form)) return p.form;
+  if (p.lang === 'en') return '英文诗';
+  if (/随吟/.test(p.title)) return '随吟';
+  const ss = (stanzas && stanzas.length ? stanzas : (p.lines ? [p.lines] : []));
+  const all = ss.flat();
+  if (all.length >= 4) {
+    const lens = all.map(l => l.replace(/[，。；、！？：\s]/g, '').length);
+    const uniq = new Set(lens);
+    const even = [...uniq].every(n => n % 2 === 0);
+    if (even && uniq.size <= 2 && lens.every(n => n === lens[0])) return '近体诗';
+  }
+  if (ss.length === 2) return '词';
+  return '现代诗';
+}
+
+const formChinese = f => ({ '近体诗': '近体诗', '词': '词', '现代诗': '现代诗', '随吟': '随吟', '英文诗': '英文诗' }[f] || f);
+
+function excerptCandidates(p) {
+  const stanzas = (p.stanzas && p.stanzas.length ? p.stanzas : (p.lines ? [p.lines] : []));
+  const form = inferForm(p, stanzas);
+  const out = [];
+  if (form === '英文诗') {
+    for (const st of stanzas) out.push(st.join('\n'));
+  } else if (form === '词') {
+    for (const st of stanzas) out.push(st.join('\n'));
+  } else if (form === '随吟') {
+    for (const st of stanzas) out.push(st.join('\n'));
+  } else if (form === '近体诗') {
+    for (const l of p.lines || []) {
+      if (l.trim()) out.push(l.trim());
+    }
+  } else {
+    for (const st of stanzas) out.push(st.join('\n'));
+  }
+  return out.length ? out : [p.lines.join('\n')];
+}
+
+function buildCandidates() {
+  const reviewOf = new Map(REVIEWS.map(r => [r.poem, r]));
+  const reviewed = [], others = [];
+  for (const p of POEMS) {
+    if (!p.lines.length) continue;
+    const rv = reviewOf.get(p.title);
+    const exs = excerptCandidates(p);
+    const push = (pool, text, key) => pool.push({ p, rv, text, key });
+    if (rv && rv.best_line) push(reviewed, rv.best_line, p.id + '|best');
+    else exs.forEach((t, i) => push(rv ? reviewed : others, t, p.id + '|e' + i));
+  }
+  return { reviewed, others };
+}
+
+function pickOne(pool) {
+  if (!pool.length) return null;
+  let cand = null, guard = 0;
+  while (guard++ < 300) {
+    const c = pool[Math.floor(Math.random() * pool.length)];
+    if (!PICKED.has(c.key)) { cand = c; break; }
+  }
+  if (!cand) { PICKED.clear(); cand = pool[Math.floor(Math.random() * pool.length)]; }
+  PICKED.add(cand.key);
+  return cand;
+}
+
+function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+let CURRENT = null;
+
+function llmReady() { return !!(state.llm.base && state.llm.key && state.llm.model); }
+
+async function askAIonCard(poem, pickedText) {
+  const box = document.getElementById('aiBox');
+  const btn = document.getElementById('btnAi');
+  if (!llmReady()) { statusText('请先在 ⚙ 设置中配置大模型'); return; }
+  if (box) box.innerHTML = '<em>正在请 ' + esc(state.llm.model) + ' 结合全诗品鉴……</em>';
+  if (btn) btn.disabled = true;
+  try {
+    const full = (poem.lines || []).join('\n');
+    const d = await api('/api/ask', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ llm: state.llm, poem: { title: poem.title, year: poem.year, theme: poem.theme, text: full, picked: pickedText } })
+    });
+    if (box) box.innerHTML = `── AI · ${esc(state.llm.model)}<br>${esc(d.text || '（无返回内容）')}`;
+  } catch (e) {
+    if (box) box.innerHTML = `（大模型调用失败：${esc(e.message)}）`;
+    else alert('大模型调用失败：' + e.message);
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
+function toggleFull() {
+  const box = document.getElementById('fullBox');
+  if (!box || !CURRENT) return;
+  const show = box.style.display === 'none';
+  box.style.display = show ? 'block' : 'none';
+  const btn = document.getElementById('btnFull');
+  if (btn) btn.textContent = show ? '收起全诗' : '查看全诗';
+  if (show && !box.innerHTML) {
+    const p = CURRENT.p;
+    box.innerHTML = `<span class="ft-tip">《${esc(p.title)}》全文 · ${esc(p.year || '年份未定')} · ${esc(p.theme || '未分类')}</span>${esc((p.lines || []).join('\n'))}`;
+  }
+}
+
+function statusText(t) { document.getElementById('status').textContent = t; }
+
+/* ---- 本地文件解析（选择文件/目录后赏析） ---- */
+function parseLocalMd(text) {
+  const t = text.replace(/\r\n/g, '\n');
+  const m = t.match(/^---\n([\s\S]*?)\n---\n?/);
+  const fm = {};
+  if (m) for (const ln of m[1].split('\n')) {
+    const i = ln.indexOf(':');
+    if (i > 0) fm[ln.slice(0, i).trim()] = ln.slice(i + 1).trim().replace(/^"|"$/g, '');
+  }
+  const body = m ? t.slice(m[0].length) : t;
+  const poemLines = body.split('\n').map(s => s.trim())
+    .filter(s => s && !/^!\[\[/.test(s) && !/^```/.test(s) && !/^#/.test(s) && !/^<!--/.test(s) && !/^---/.test(s));
+  const stanzas = body.split(/\n[ \t]*\n/).map(seg => seg.split('\n').map(s => s.trim())
+    .filter(s => s && !/^!\[\[/.test(s) && !/^```/.test(s) && !/^#/.test(s) && !/^<!--/.test(s) && !/^---/.test(s)))
+    .filter(a => a.length);
+  return { fm, lines: poemLines, stanzas };
+}
+
+function renderLocalPoem(fm, lines, stanzas, fileName, isDir) {
+  const created = fm.created || '';
+  const title = fm.title || fileName.replace(/\.md$/i, '');
+  const p = {
+    id: 'file|' + fileName,
+    title, year: (created.match(/(20\d{2})/) || [])[1] || '',
+    lang: fm.lang || 'zh', theme: fm.theme || '',
+    form: fm.form || '', created, lines,
+    stanzas: (stanzas && stanzas.length ? stanzas : [lines]),
+    _local: true, file: fileName
+  };
+  if (!p.lines.length) { statusText('所选文件没有可赏析的诗行：' + fileName); return; }
+  const rv = (REVIEWS.find(r => r.poem === p.title)) || null;
+  let text;
+  if (rv && rv.best_line) text = rv.best_line;
+  else text = excerptCandidates(p)[0];
+  POEMS.unshift(p);
+  fillPoemPicker();
+  document.getElementById('poemPick').value = '0';
+  statusText((isDir ? '目录' : '文件') + '已载入：' + fileName + '（已加入选择列表第 1 项）');
+  renderCard({ p, rv, text, key: 'file|' + fileName + '|pick' });
+}
+
+function bindFilePickers() {
+  document.getElementById('btnOpenFile').addEventListener('click', () => document.getElementById('filePick').click());
+  document.getElementById('filePick').addEventListener('change', async ev => {
+    const files = [...ev.target.files].filter(f => /\.md$/i.test(f.name));
+    if (!files.length) { statusText('未选择 .md 文件'); ev.target.value = ''; return; }
+    const f = files[0];
+    const text = await f.text();
+    const { fm, lines, stanzas } = parseLocalMd(text);
+    renderLocalPoem(fm, lines, stanzas, f.name, false);
+    ev.target.value = '';
+  });
+  document.getElementById('btnOpenDir').addEventListener('click', () => document.getElementById('dirPick').click());
+  document.getElementById('dirPick').addEventListener('change', async ev => {
+    const files = [...ev.target.files].filter(f => /\.md$/i.test(f.name));
+    if (!files.length) { statusText('所选目录没有 .md 文件'); ev.target.value = ''; return; }
+    statusText('正在解析目录中的 ' + files.length + ' 个文件……');
+    let done = 0;
+    for (const f of files.slice(0, 300)) {
+      try {
+        const text = await f.text();
+        const { fm, lines, stanzas } = parseLocalMd(text);
+        if (lines.length) { renderLocalPoem(fm, lines, stanzas, f.name, true); done++; }
+      } catch { /* 单个文件失败跳过 */ }
+    }
+    statusText('目录载入完成：共解析 ' + done + ' 首（已加入选择列表）');
+    ev.target.value = '';
+  });
+}
+
+function fmtDate(p) {
+  if (p.created) return p.created;
+  if (p.year) return p.year + ' 年';
+  return '日期未定';
+}
+
+async function renderCard(c) {
+  CURRENT = c;
+  const card = document.getElementById('card');
+  let html = `<div class="verse">${esc(c.text)}</div>`;
+  const formTag = c.p.form && FORMS.includes(c.p.form) ? ` · ${esc(c.p.form)}` : '';
+  html += `<div class="src">《${esc(c.p.title)}》 · ${esc(fmtDate(c.p))}${formTag} · ${esc(c.p.theme || '未分类')}${c.rv && c.rv.rating ? ' · ' + esc(c.rv.rating) : ''}</div>`;
+  html += `<div class="rv">`;
+  if (c.rv) html += `${esc(c.rv.body)}<span class="rv-src">—— 收录于 wiki/赏析/${esc(c.p.title)}</span>`;
+  else html += esc(buildReason(c.text, c.p));
+  html += `<span class="rv-machine" id="aiBox"></span>`;
+  html += `</div>`;
+  html += `<div class="multi-row">`;
+  html += `<button class="mini-btn" id="btnFull" onclick="toggleFull()">查看全诗</button>`;
+  html += `<button class="mini-btn" id="btnAi" onclick="askAIonCard(CURRENT.p, CURRENT.text)">AI 品鉴此诗</button>`;
+  html += `</div>`;
+  html += `<div class="fulltext" id="fullBox" style="display:none"></div>`;
+  card.innerHTML = html;
+  card.style.display = 'block';
+  document.getElementById('wc').style.display = 'none';
+  document.getElementById('frameNote').textContent = '';
+  const src = c.rv ? '已收录赏析' : '启发式赏析';
+  statusText(`第 ${PICKED.size} 首 · ${POEMS.length} 首诗中拾取 · ${src}`);
+  document.getElementById('aiBox').innerHTML = '';
+  if (llmReady()) askAIonCard(c.p, c.text);
+}
+
+function pickByIndex(idx) {
+  const p = POEMS[idx];
+  if (!p || !p.lines.length) return null;
+  const rv = (REVIEWS.find(r => r.poem === p.title)) || null;
+  let text;
+  if (rv && rv.best_line) text = rv.best_line;
+  else text = excerptCandidates(p)[0];
+  return { p, rv, text, key: 'pick|' + idx };
+}
+
+function fillPoemPicker() {
+  const sel = document.getElementById('poemPick');
+  sel.innerHTML = '<option value="">—— 随机拾取，或从下面选一首 ——</option>' +
+    POEMS.map((p, i) => `<option value="${i}">${esc(p.title)} · ${esc(fmtDate(p).replace(/（.*?）/, ''))} · ${esc(p.theme || '未分类')}</option>`).join('');
+  sel.addEventListener('change', () => {
+    const v = sel.value;
+    if (v === '') return;
+    const c = pickByIndex(+v);
+    if (c && !CURRENT || c && CURRENT.key !== c.key) PICKED.clear();
+    if (c) renderCard(c);
+  });
+}
+
+async function showVerse() {
+  const st = document.getElementById('status');
+  try {
+    if (!POEMS) {
+      await loadPoems();
+      fillPoemPicker();
+    }
+    const { reviewed, others } = buildCandidates();
+    let c = pickOne(reviewed) || pickOne(others);
+    if (!c) { st.textContent = '暂无可赏的作品'; return; }
+    await renderCard(c);
+  } catch (e) { st.textContent = '加载失败：' + e.message; }
+}
+
+/* ================= 设置 ================= */
+document.getElementById('btnGear').addEventListener('click', () => document.getElementById('sheet').classList.add('open'));
+document.getElementById('cfgCancel').addEventListener('click', () => document.getElementById('sheet').classList.remove('open'));
+document.getElementById('cfgSave').addEventListener('click', async () => {
+  const tip = document.getElementById('cfgTip');
+  state.source = document.getElementById('cfgSource').value;
+  state.mask = document.getElementById('cfgMask').value;
+  state.author = document.getElementById('cfgAuthor').value.trim();
+  state.llm = {
+    base: document.getElementById('cfgBase').value.trim(),
+    key: document.getElementById('cfgKey').value.trim(),
+    model: document.getElementById('cfgModel').value.trim()
+  };
+  try {
+    await api('/api/config', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ source: state.source, author: state.author, llm: state.llm })
+    });
+    tip.textContent = '已保存 ✓';
+    setTimeout(() => document.getElementById('sheet').classList.remove('open'), 700);
+  } catch (e) { tip.textContent = '保存失败：' + e.message; }
+});
+
+document.getElementById('btnPin').addEventListener('click', showCloud);
+document.getElementById('btnApp').addEventListener('click', () => showVerse());
+bindFilePickers();
+init();
+</script>
+</body>
+</html>

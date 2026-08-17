@@ -1,0 +1,8 @@
+# 敏感配置不入库
+config.json
+.env
+
+# 系统文件
+.DS_Store
+Thumbs.db
+node_modules/

@@ -1,0 +1,9 @@
+{
+  "source": "auto",
+  "author": "XXX",
+  "llm": {
+    "base": "https://api.deepseek.com",
+    "key": "sk-*** 请填写你的 API Key ***",
+    "model": "deepseek-chat"
+  }
+}
