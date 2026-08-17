@@ -29,7 +29,8 @@
 - **赏**：优先展有赏析的作品，按 `form` 体裁选取段落：近体诗取整句、词/现代诗/英文诗取整段、随吟取整句；无赏析可一键调用大模型即时生评
 - **双数据源**：默认直读本地文件；开启 Obsidian Local REST API 后自动切换为实时 API 读取
 - **配置热更新**：`config.json` 管理数据源与 LLM 参数，网页端可改
-
+<img width="2529" height="1381" alt="image" src="https://github.com/user-attachments/assets/ca32d6c8-f44e-497d-88dc-afae85203f55" />
+<img width="2530" height="1372" alt="image" src="https://github.com/user-attachments/assets/3253d85c-857c-4193-bafd-7d1c6cc48813" />
 ---
 
 ## 快速开始
