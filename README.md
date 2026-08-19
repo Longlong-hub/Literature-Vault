@@ -1,4 +1,4 @@
-# 诗云 · 个人文学知识库（Literature Vault）
+﻿# 诗云 · 个人文学知识库（Literature Vault）
 
 > **English**：[README.en.md](README.en.md) · 本仓库中文 Introduction
 
@@ -44,7 +44,7 @@
 ```
 你的文学库/
 ├── raw/            # 写作区（源文件）
-│   ├── 诗集/       #   中文/ en/ snap/(随吟)
+│   ├── 诗集/       #   中文/ en/ freestyle/(随吟)
 │   ├── 文选/       #   散文/故事/思考
 │   ├── 专辑/       #   多语言混合合集
 │   └── 收藏/       #   摘录（不参与归档）

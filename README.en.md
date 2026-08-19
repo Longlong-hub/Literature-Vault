@@ -1,4 +1,4 @@
-# Shiyun · Personal Literature Vault
+﻿# Shiyun · Personal Literature Vault
 
 > Turn Obsidian into a **personal literary knowledge base** that can be archived, searched, and appreciated. Shiyun is a visualization & appreciation service that lives right inside the vault.
 
@@ -6,7 +6,7 @@ A literature vault project maintained by "one person + AI", delivered in two par
 
 | Module | Description |
 |--------|-------------|
-| **Vault conventions** | Dual-dimension archiving from the `raw/` writing area to the `wiki/` archive area: frontmatter spec, 8 themes, 5 forms, snap/collection splitting, index & log management, with companion Agent Skills (ingest / query / lint) |
+| **Vault conventions** | Dual-dimension archiving from the `raw/` writing area to the `wiki/` archive area: frontmatter spec, 8 themes, 5 forms, freestyle / collection splitting, index & log management, with companion Agent Skills (ingest / query / lint) |
 | **Shiyun visualization (v2)** | Zero-dependency Node.js local service (port 8899): poem-shaped word cloud (品), per-poem appreciation display (赏), optional LLM instant reviews (AI), and an optional Obsidian Local REST API data source |
 
 ---
@@ -16,15 +16,15 @@ A literature vault project maintained by "one person + AI", delivered in two par
 ### 📚 Vault side
 - **Dual-dimension archiving**: organized by "language → theme" and "year → language → theme"; each poem exists in both dimensions
 - **Frontmatter spec**: five document types (poem / essay / clipping / collection / review) with unified definitions, including Gan-zhi (sexagenary cycle) timestamps
-- **Form detection**: 近体诗 (regulated verse) / 词 (ci) / 现代诗 (free verse) / 随吟 (snap) / 英文诗 (English) — auto-detected by the AI pipeline
-- **Snap splitting**: one-line-per-poem snap writing area; automatically split into individual poems on ingest
+- **Form detection**: 近体诗 (regulated verse) / 词 (ci) / 现代诗 (free verse) / 随吟 (freestyle) / 英文诗 (English) — auto-detected by the AI pipeline
+- **Freestyle splitting**: one-line-per-poem freestyle writing area; automatically split into individual poems on ingest
 - **Collection splitting**: multi-language collections (e.g. `For Senior Wu`) split into individual poems by date
 - **Search & health checks**: `/query` dual-link retrieval, `/lint` dead-link / orphan / format inspection
 - **Review system**: each review maps to one archived poem via frontmatter (`poem` must equal the poem's `title`); Shiyun picks display segments by `form`
 
 ### 🎨 Shiyun side (zero dependencies, Node standard library only)
 - **品 (Cloud)**: reads the archived poems live; `data/poem-words.json` built-in dictionary (frequency + PMI filtered from the chinese-poetry Song-ci corpus) for segmentation, falling back to bigrams — renders a poem-shaped word cloud
-- **赏 (Appreciate)**: prefers poems that have reviews; picks segments by `form` — regulated verse by full line, ci/free verse/English by stanza, snaps by line; one-click LLM instant review when no review exists
+- **赏 (Appreciate)**: prefers poems that have reviews; picks segments by `form` — regulated verse by full line, ci/free verse/English by stanza, freestyle lines by line; one-click LLM instant review when no review exists
 - **Dual data sources**: local file reading by default; switches to the Obsidian Local REST API in real time when enabled
 - **Hot-reloadable config**: `config.json` manages data source and LLM params; editable from the web UI
 
@@ -41,7 +41,7 @@ A literature vault project maintained by "one person + AI", delivered in two par
 ```
 your vault/
 ├── raw/            # writing area (source)
-│   ├── 诗集/       #   中文/ en/ snap/
+│   ├── 诗集/       #   中文/ en/ freestyle/
 │   ├── 文选/       #   essays / stories / thoughts
 │   ├── 专辑/       #   mixed-language collections
 │   └── 收藏/       #   clippings (not archived)
