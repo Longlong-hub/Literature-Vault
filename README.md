@@ -13,6 +13,19 @@
 
 ---
 
+## 📖 详细介绍 & 视频
+
+- 📝 **详细文章介绍**：[在公众号阅读完整长文](https://mp.weixin.qq.com/s/_CSb7TX7-n2PfjKBUr5zpA)
+- 🎬 **B 站视频介绍**：[诗云 · 个人文学知识库（Literature Vault）。共赏诗和代码之美~](https://www.bilibili.com/video/BV1bYbf6dEwm/?share_source=copy_web&vd_source=618e61e5419fab55e21e5990fe9ee9e8)
+
+### 🎥 仓库内演示视频
+
+<video src="assets/video/诗云介绍.mp4" controls width="100%"></video>
+
+> 视频同时托管在仓库内 `assets/video/诗云介绍.mp4`，方便离线 / 弱网环境直接查看。
+
+---
+
 ## 特性
 
 ### 📚 知识库侧

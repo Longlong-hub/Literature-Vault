@@ -11,6 +11,19 @@ A literature vault project maintained by "one person + AI", delivered in two par
 
 ---
 
+## 📖 Articles & Videos
+
+- 📝 **Detailed article**: [Read the full write-up on WeChat](https://mp.weixin.qq.com/s/_CSb7TX7-n2PfjKBUr5zpA)
+- 🎬 **Bilibili video walkthrough**: [Shiyun · Personal Literature Vault — enjoy the beauty of poetry and code](https://www.bilibili.com/video/BV1bYbf6dEwm/?share_source=copy_web&vd_source=618e61e5419fab55e21e5990fe9ee9e8)
+
+### 🎥 In-repo demo video
+
+<video src="assets/video/诗云介绍.mp4" controls width="100%"></video>
+
+> The same demo is also bundled at `assets/video/诗云介绍.mp4` for offline / low-bandwidth viewing.
+
+---
+
 ## Features
 
 ### 📚 Vault side
