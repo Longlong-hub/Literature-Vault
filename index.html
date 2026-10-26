@@ -4,199 +4,148 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>诗云 · 品赏</title>
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scrollbar-color: #b9a887 transparent; }
-  body {
-    min-height: 100vh;
-    background:
-      radial-gradient(ellipse 90% 60% at 50% -10%, rgba(160,120,60,.12), transparent 62%),
-      linear-gradient(165deg, #f7f2e6 0%, #f0e8d5 55%, #eaddc4 100%);
-    font-family: "Songti SC", "SimSun", "STSong", "Noto Serif SC", serif;
-    color: #3a3228;
-    display: flex; flex-direction: column; align-items: center;
-    padding: 30px 16px 56px;
-  }
-  body::before {
-    content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .5;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 0.35 0 0 0 0 0.3 0 0 0 0 0.2 0 0 0 0.06 0'/></filter><rect width='120' height='120' filter='url(%23n)'/></svg>");
-  }
-  header { text-align: center; margin-bottom: 26px; position: relative; }
-  h1 {
-    font-size: 64px; letter-spacing: 30px; text-indent: 30px;
-    font-weight: 700; color: #2c261c;
-    text-shadow: 3px 3px 0 rgba(160,90,60,.12);
-  }
-  .sub { margin-top: 6px; color: #8a7a5f; letter-spacing: 8px; text-indent: 8px; font-size: 14px; }
-  .gear {
-    width: 40px; height: 40px; border-radius: 50%; border: 1px solid #c9b28a; cursor: pointer;
-    background: rgba(255,252,244,.6); color: #8a7a5f; font-size: 18px; line-height: 38px; text-align: center;
-  }
-  .gear:hover { background: rgba(255,252,244,.95); }
-  .bar { display: flex; align-items: center; gap: 22px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
-  .seal {
-    width: 92px; height: 92px; border-radius: 50%; border: none; cursor: pointer;
-    background: radial-gradient(circle at 34% 26%, #bd4d3e, #8f2f22 72%);
-    color: #f7efe0; font-size: 38px; font-family: inherit;
-    box-shadow: 0 6px 16px rgba(140,60,40,.35), inset 0 2px 5px rgba(255,235,210,.35);
-    transition: transform .15s, box-shadow .15s; user-select: none;
-  }
-  .seal:hover { transform: translateY(-3px) scale(1.04); box-shadow: 0 10px 22px rgba(140,60,40,.45); }
-  .seal:active { transform: scale(.96); }
-  .seal .tag { display: block; font-size: 12px; letter-spacing: 5px; text-indent: 5px; margin-top: -6px; }
-  .gear {
-    position: absolute; top: 8px; right: 14px;
-    width: 34px; height: 34px; border-radius: 50%; border: 1px solid #d8c9a8; cursor: pointer;
-    background: rgba(255,252,244,.55); color: #a99c82; font-size: 15px; line-height: 32px; text-align: center;
-  }
-  .gear:hover { background: rgba(255,252,244,.95); color: #6d5c42; }
-  .stage {
-    width: min(980px, 96vw); min-height: 540px;
-    background: rgba(255,252,244,.72);
-    border: 1px solid rgba(150,120,80,.28);
-    border-radius: 14px;
-    box-shadow: 0 12px 34px rgba(90,70,40,.16), inset 0 0 60px rgba(255,248,228,.6);
-    padding: 20px; display: flex; align-items: center; justify-content: center;
-    position: relative;
-  }
-  .stage canvas { max-width: 100%; height: auto; display: block; border-radius: 8px; }
-  .stage .frame-note { position: absolute; bottom: 10px; right: 16px; color: #b3a386; font-size: 12px; letter-spacing: 3px; }
-  .card { max-width: 760px; width: 100%; text-align: center; padding: 26px 30px; }
-  .card .verse {
-    font-size: clamp(22px, 4.2vw, 38px); line-height: 2; letter-spacing: 2px; color: #2c261c; margin-bottom: 10px;
-    font-weight: 600;
-  }
-  .card .src { color: #8a7a5f; font-size: 14px; letter-spacing: 1px; margin-bottom: 20px; }
-  .card .rv {
-    text-align: left; color: #5d5142; font-size: 14.5px; line-height: 2;
-    border-left: 3px solid #a03a2e; padding: 2px 2px 2px 16px;
-    background: rgba(255,252,244,.5); border-radius: 0 8px 8px 0;
-  }
-  .card .rv .rv-src { display: block; margin-top: 10px; color: #a59b8a; font-size: 12px; letter-spacing: 2px; }
-  .card .rv .rv-machine { display: block; margin-top: 10px; color: #8a7a5f; font-size: 12px; letter-spacing: 1px; }
-  .status { margin-top: 16px; color: #9a8c74; font-size: 13px; letter-spacing: 2px; min-height: 20px; text-align: center; }
-  footer { margin-top: 26px; color: #a99c82; font-size: 12px; letter-spacing: 3px; }
-
-  .pick-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; justify-content: center; }
-  .pick-row select {
-    min-width: 320px; max-width: 90vw; padding: 8px 12px; border: 1px solid #d8c9a8; border-radius: 8px;
-    background: rgba(255,252,244,.85); color: #3a3228; font-family: inherit; font-size: 14px;
-  }
-  .pick-row label { color: #8a7a5f; font-size: 13px; letter-spacing: 3px; }
-  .multi-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
-  .mini-btn {
-    padding: 5px 14px; border: 1px solid #d8c9a8; border-radius: 999px; cursor: pointer;
-    background: rgba(255,252,244,.75); color: #6d5c42; font-family: inherit; font-size: 12.5px; letter-spacing: 2px;
-    transition: background .15s, color .15s;
-  }
-  .mini-btn:hover:not(:disabled) { background: #f0e8d5; color: #3a3228; }
-  .mini-btn:disabled { opacity: .45; cursor: default; }
-  .fulltext {
-    text-align: left; margin-top: 14px; padding: 14px 18px; border-radius: 8px;
-    background: rgba(255,252,244,.55); border: 1px dashed rgba(150,120,80,.35);
-    font-size: 15px; line-height: 2.1; color: #3a3228; white-space: pre-wrap; word-break: break-all;
-  }
-  .fulltext .ft-tip { color: #b3a386; font-size: 11px; letter-spacing: 2px; display: block; margin-bottom: 6px; }
-
-  .sheet {
-    position: fixed; inset: 0; background: rgba(40,32,20,.35); display: none;
-    align-items: center; justify-content: center; z-index: 20;
-  }
-  .sheet.open { display: flex; }
-  .sheet-panel {
-    width: min(460px, 92vw); background: #faf6ec; border-radius: 14px; padding: 26px 28px;
-    box-shadow: 0 18px 50px rgba(60,40,20,.4); border: 1px solid #e3d6b8;
-    max-height: 88vh; overflow: auto;
-  }
-  .sheet-panel h2 { font-size: 20px; letter-spacing: 6px; color: #2c261c; margin-bottom: 18px; }
-  .field { margin-bottom: 14px; }
-  .field label { display: block; font-size: 13px; color: #8a7a5f; letter-spacing: 2px; margin-bottom: 5px; }
-  .field input, .field select {
-    width: 100%; padding: 8px 10px; border: 1px solid #d8c9a8; border-radius: 6px;
-    background: #fffdf6; color: #3a3228; font-family: inherit; font-size: 14px;
-  }
-  .field .hint { display: block; margin-top: 4px; font-size: 11px; color: #b3a386; line-height: 1.7; }
-  .panel-actions { display: flex; gap: 12px; margin-top: 20px; }
-  .btn {
-    flex: 1; padding: 9px 0; border: none; border-radius: 6px; cursor: pointer;
-    font-family: inherit; font-size: 15px; letter-spacing: 4px;
-    background: linear-gradient(145deg, #b84a3c, #8f2f22); color: #f7efe0;
-  }
-  .btn.ghost { background: #efe6d2; color: #6d5c42; }
-  .ok-tip { color: #5c8a4e; font-size: 12px; margin-top: 8px; letter-spacing: 1px; }
-</style>
+<meta name="theme-color" content="#f7f6f0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 40 40%27%3E%3Crect width=%2740%27 height=%2740%27 rx=%276%27 fill=%27%23365b49%27/%3E%3Ctext x=%2720%27 y=%2728%27 text-anchor=%27middle%27 font-size=%2727%27 fill=%27%23faf8ee%27%3E诗%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
-<header>
-  <h1>诗云</h1>
-  <div class="sub">品其字 · 赏其魂</div>
-  <button class="gear" id="btnGear" title="设置">⚙</button>
-</header>
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="i-settings" viewBox="0 0 24 24"><path d="m9 3-.5 3-2 1.2-2.8-1.1-3 5.2 2.4 1.9v2.3L.7 17.4l3 5.2 2.8-1.1 2 1.2.5 3" transform="translate(2 -2) scale(.85)"/><path d="m15 3 .5 3 2 1.2 2.8-1.1 3 5.2-2.4 1.9v2.3l2.4 1.9-3 5.2-2.8-1.1-2 1.2-.5 3" transform="translate(2 -2) scale(.85)"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M12 5c-3-2-6-2-9-1v15c3-1 6-1 9 1 3-2 6-2 9-1V4c-3-1-6-1-9 1Zm0 0v15"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+  <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="M3 6h3c5 0 7 12 12 12h3m-4-4 4 4-4 4M3 18h3c2 0 3-2 5-5m2-2c2-3 3-5 5-5h3m-4-4 4 4-4 4"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H5v18h14V8Zm0 0v5h5M8 12h8m-8 4h6"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7V4h6l3 3h9v13H3Zm0 0h9"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></symbol>
+  <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M20 3C9 2 3 6 5 14c2 7 13 7 15-11ZM3 21 16 8M7 16V9m0 7h7"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+</svg>
+<div class="shell" id="appShell">
+  <header class="topbar">
+    <div class="brand" aria-label="诗云，个人文学知识库">
+      <span class="brand-mark" aria-hidden="true">诗</span>
+      <div><span class="brand-name">诗云</span><span class="brand-en">SHIYUN · POETRY</span></div>
+      <span class="brand-divider" aria-hidden="true"></span>
+      <span class="brand-tagline">品其字 · 赏其魂</span>
+    </div>
+    <div class="header-actions">
+      <div class="source-badge" id="sourceBadge"><span class="source-dot" aria-hidden="true"></span><span id="sourceLabel">正在连接诗集</span></div>
+      <button class="gear" id="btnGear" title="设置" aria-label="打开设置" aria-haspopup="dialog"><svg class="icon" aria-hidden="true"><use href="#i-settings"/></svg><span>设置</span></button>
+    </div>
+  </header>
 
-<div class="bar">
-  <button class="seal" id="btnPin">品<span class="tag">词云</span></button>
-  <button class="seal" id="btnApp">赏<span class="tag">诗句</span></button>
+  <main>
+    <section class="intro" aria-labelledby="pageTitle">
+      <div>
+        <p class="eyebrow">A QUIET SPACE FOR POETRY</p>
+        <h1 id="pageTitle">给文字，<span>一方天地。</span></h1>
+        <p class="intro-description">在字里行间，与一首诗不期而遇。</p>
+      </div>
+      <p class="intro-aside">一半是人间烟火<br>一半是诗意清欢</p>
+    </section>
+
+    <div class="workspace">
+      <aside class="sidebar" aria-label="诗集与导入">
+        <section class="collection" aria-labelledby="collectionTitle">
+          <div class="section-heading"><h2 id="collectionTitle">我的诗集</h2><svg class="icon" aria-hidden="true"><use href="#i-book"/></svg></div>
+          <div class="collection-stats">
+            <div class="stat"><strong id="poemCount">—</strong><span>首作品</span></div>
+            <div class="stat"><strong id="reviewCount">—</strong><span>篇赏析</span></div>
+          </div>
+          <div class="pick-row">
+            <label for="poemPick">择一首，慢慢读</label>
+            <div class="select-wrap"><select id="poemPick"><option value="">从诗集中选择一首</option></select><svg class="icon" aria-hidden="true"><use href="#i-chevron"/></svg></div>
+            <button class="primary-btn random-btn" id="btnRandom"><svg class="icon" aria-hidden="true"><use href="#i-shuffle"/></svg>随机赏一句</button>
+          </div>
+          <p class="import-title">或，带来你的诗</p>
+          <div class="import-actions">
+            <button class="import-btn" id="btnOpenFile" title="选择本地 Markdown 文件"><svg class="icon" aria-hidden="true"><use href="#i-file"/></svg>导入文件</button>
+            <button class="import-btn" id="btnOpenDir" title="选择本地诗集目录"><svg class="icon" aria-hidden="true"><use href="#i-folder"/></svg>导入目录</button>
+          </div>
+          <input type="file" id="filePick" accept=".md" multiple hidden>
+          <input type="file" id="dirPick" webkitdirectory multiple hidden>
+          <p class="local-note">支持 Markdown · 在本地读诗、藏诗</p>
+        </section>
+        <section class="slow-note" aria-label="慢读寄语">
+          <svg class="icon" aria-hidden="true"><use href="#i-leaf"/></svg>
+          <h3>慢读，才有回响。</h3>
+          <p>让匆忙停一停<br>把片刻，留给喜欢的文字。</p>
+        </section>
+      </aside>
+
+      <section class="canvas-panel" aria-label="诗词品赏">
+        <div class="panel-toolbar">
+          <div class="panel-label"><span id="viewIndex">01</span><span id="viewTitle">诗 境</span></div>
+          <nav class="bar" aria-label="品赏模式">
+            <button class="mode-btn" id="btnPin" aria-pressed="true"><svg class="icon" aria-hidden="true"><use href="#i-grid"/></svg>品 · 词云</button>
+            <button class="mode-btn" id="btnApp" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#i-book"/></svg>赏 · 诗句</button>
+          </nav>
+        </div>
+        <div class="stage" id="stage" aria-label="诗词展示区" aria-busy="false">
+          <div class="welcome" id="welcome">
+            <img class="landscape" src="assets/landscape.svg" alt="" aria-hidden="true">
+            <div class="welcome-content">
+              <p class="welcome-kicker">字 有 形 · 意 无 尽</p>
+              <h2>一字一世界<br>一诗一浮生</h2>
+              <span class="welcome-stamp" aria-hidden="true">诗意</span>
+              <p class="welcome-desc">将心事酿成诗，将诗意聚成云。<br>在这里，看见文字的另一种模样。</p>
+              <button class="welcome-action" id="btnBegin">开启一卷诗意<svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+            </div>
+          </div>
+          <canvas id="wc" width="900" height="700" style="display:none" role="img" aria-label="根据诗集词频生成的字形词云"></canvas>
+          <article class="card" id="card" style="display:none" aria-label="诗句与赏析"></article>
+          <span class="frame-note" id="frameNote"></span>
+        </div>
+        <div class="panel-bottom"><span><svg class="icon" aria-hidden="true"><use href="#i-spark"/></svg><span id="viewHint">以字为形，以诗为境</span></span><span>品其字，赏其魂。</span></div>
+      </section>
+    </div>
+    <div class="status" role="status" aria-live="polite"><span id="status">点击「品」看文字成云，或点击「赏」与好诗相遇。</span></div>
+  </main>
+  <footer><span>诗云<span class="footer-dot">/</span><span id="collectionCredit">龙川诗集 · 龙川武生</span></span><span class="footer-motto">心有所栖，诗有所云。</span></footer>
 </div>
-
-<div class="pick-row">
-  <label for="poemPick">自选一首</label>
-  <select id="poemPick">
-    <option value="">—— 随机拾取，或从下面选一首 ——</option>
-  </select>
-  <button class="mini-btn" id="btnOpenFile" title="选择本地 .md 文件赏析">选择文件</button>
-  <input type="file" id="filePick" accept=".md" multiple style="display:none">
-  <button class="mini-btn" id="btnOpenDir" title="选择本地目录（如 raw/ 或 Wiki 目录）赏析">选择目录</button>
-  <input type="file" id="dirPick" webkitdirectory multiple style="display:none">
-</div>
-
-<div class="stage" id="stage">
-  <canvas id="wc" width="900" height="700" style="display:none"></canvas>
-  <div class="card" id="card" style="display:none"></div>
-  <span class="frame-note" id="frameNote"></span>
-</div>
-
-<div class="status" id="status">点击「品」生成诗字形词云 · 点击「赏」拾取一句好诗</div>
-<footer>龙川诗集 · 龙川武生</footer>
 
 <div class="sheet" id="sheet">
-  <div class="sheet-panel">
-    <h2>设 置</h2>
+  <section class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" aria-describedby="settingsDescription" tabindex="-1">
+    <div class="sheet-header"><h2 id="settingsTitle">诗云设置</h2><button class="close-btn" id="cfgClose" aria-label="关闭设置"><svg class="icon" aria-hidden="true"><use href="#i-close"/></svg></button></div>
+    <p class="sheet-subtitle" id="settingsDescription">为你的诗集，安置一处合意的空间。</p>
     <div class="field">
-      <label>数据源</label>
+      <label for="cfgSource">数据源</label>
       <select id="cfgSource">
         <option value="auto">自动（优先 Obsidian API）</option>
         <option value="obsidian">Obsidian Local REST API</option>
         <option value="local">本地文件直读</option>
       </select>
-      <span class="hint">Obsidian API 需 Obsidian 运行中并启用 Local REST API 插件；本地直读永远可用（Obsidian 保存即上盘，实时性无差别）。GitHub 远程仅作备份，走 GitHub 有推送延迟且需 token，故不设为数据源。</span>
+      <span class="hint">使用 Obsidian 需运行并启用 Local REST API 插件。本地直读从文学库的 wiki/归档/诗集 读取作品，也可直接在页面导入文件。</span>
     </div>
     <div class="field">
-      <label>词云字形（掩码）</label>
+      <label for="cfgMask">词云字形</label>
       <select id="cfgMask">
         <option value="诗字剪影.png">诗字剪影</option>
         <option value="剪影.png">剪影</option>
       </select>
     </div>
     <div class="field">
-      <label>大模型赏析（可选）</label>
-      <input id="cfgAuthor" placeholder="作者名（AI 赏析以此称呼）">
-      <input id="cfgBase" placeholder="API Base，如 https://api.openai.com/v1">
-      <input id="cfgKey" type="password" placeholder="API Key">
-      <input id="cfgModel" placeholder="模型名，如 gpt-4o-mini">
-      <span class="hint">启用后「赏」会先展示收录赏析，再让大模型针对所选诗句写一则即时赏析。Key 仅保存在本机 诗云/config.json（不入 git）。留空则使用启发式赏析。</span>
+      <label for="cfgAuthor">AI 赏析 · 可选</label>
+      <input id="cfgAuthor" aria-label="作者名" placeholder="你的笔名" autocomplete="off">
+      <input id="cfgBase" aria-label="API 地址" placeholder="API 地址，如 https://api.openai.com/v1" spellcheck="false">
+      <input id="cfgKey" aria-label="API Key" type="password" placeholder="API Key" autocomplete="off">
+      <input id="cfgModel" aria-label="模型名" placeholder="模型名称" spellcheck="false">
+      <span class="hint">启用后会将所选诗句与全诗发送至配置的模型服务，生成即时赏析。Key 仅保存在本机 config.json；留空则使用本地启发式赏析。</span>
     </div>
     <div class="panel-actions">
       <button class="btn ghost" id="cfgCancel">取 消</button>
       <button class="btn" id="cfgSave">保 存</button>
     </div>
-    <div class="ok-tip" id="cfgTip"></div>
-  </div>
+    <div class="ok-tip" id="cfgTip" role="status"></div>
+  </section>
 </div>
 
 <script>
-let POEMS = null, REVIEWS = [];
+let POEMS = null, REVIEWS = [], LOCAL_POEMS = [];
 const PICKED = new Set();
-const state = { source: 'auto', mask: '诗字剪影.png', author: '', llm: { base: '', key: '', model: '' } };
+const state = { source: 'auto', usedSource: '', mask: '诗字剪影.png', author: '', keySet: false, llm: { base: '', key: '', model: '' } };
 
 async function api(path, opt) {
   const r = await fetch(path, opt);
@@ -205,9 +154,55 @@ async function api(path, opt) {
 }
 
 async function loadPoems() {
-  const d = await api('/api/poems');
-  POEMS = d.poems;
-  return d;
+  try {
+    const d = await api('/api/poems');
+    POEMS = [...LOCAL_POEMS, ...d.poems];
+    state.usedSource = d.source;
+    updateCollection();
+    return { ...d, poems: POEMS, total: POEMS.length };
+  } catch (e) {
+    if (!LOCAL_POEMS.length) throw e;
+    POEMS = [...LOCAL_POEMS];
+    state.usedSource = 'import';
+    updateCollection();
+    return { source: 'import', poems: POEMS, total: POEMS.length };
+  }
+}
+
+function updateCollection() {
+  const count = POEMS ? POEMS.length : 0;
+  document.getElementById('poemCount').textContent = count;
+  document.getElementById('reviewCount').textContent = REVIEWS.length;
+  document.getElementById('sourceBadge').classList.toggle('connected', count > 0);
+  document.getElementById('sourceLabel').textContent = count
+    ? ({ obsidian: 'Obsidian 已连接', local: '本地诗集已连接', import: '已载入本地文件' }[state.usedSource] || '诗集已载入')
+    : '诗集待连接';
+  if (state.author) document.getElementById('collectionCredit').textContent = state.author + '的诗集';
+}
+
+function setView(mode) {
+  const cloud = mode === 'cloud';
+  document.getElementById('welcome').hidden = true;
+  document.getElementById('btnPin').setAttribute('aria-pressed', String(cloud));
+  document.getElementById('btnApp').setAttribute('aria-pressed', String(!cloud));
+  document.getElementById('viewIndex').textContent = cloud ? '01' : '02';
+  document.getElementById('viewTitle').textContent = cloud ? '字 成 云' : '诗 中 意';
+  document.getElementById('viewHint').textContent = cloud ? '以字为形，以诗为境' : '读一句诗，听一场回响';
+}
+
+let viewBusy = false;
+async function runView(action) {
+  if (viewBusy) return;
+  viewBusy = true;
+  const controls = ['btnPin', 'btnApp', 'btnRandom', 'btnBegin', 'poemPick', 'btnOpenFile', 'btnOpenDir'];
+  controls.forEach(id => document.getElementById(id).disabled = true);
+  document.getElementById('stage').setAttribute('aria-busy', 'true');
+  try { await action(); }
+  finally {
+    viewBusy = false;
+    controls.forEach(id => document.getElementById(id).disabled = false);
+    document.getElementById('stage').setAttribute('aria-busy', 'false');
+  }
 }
 
 async function init() {
@@ -215,7 +210,9 @@ async function init() {
     const st = await api('/api/status');
     state.source = st.source || 'auto';
     state.author = st.author || '';
+    state.keySet = !!st.llm.keySet;
     state.llm = { base: st.llm.base, key: '', model: st.llm.model };
+    document.getElementById('cfgKey').placeholder = state.keySet ? '已保存 Key，留空保留' : 'API Key';
     document.getElementById('cfgSource').value = state.source;
     if (st.author) document.getElementById('cfgAuthor').value = st.author;
     if (st.llm.base) document.getElementById('cfgBase').value = st.llm.base;
@@ -226,7 +223,11 @@ async function init() {
   try {
     await loadPoems();
     fillPoemPicker();
-  } catch { /* 忽略 */ }
+  } catch {
+    POEMS = [];
+    statusText('还没有连接诗集。导入一个 Markdown 文件，或在设置中选择数据源，即可开始。');
+  }
+  updateCollection();
 }
 
 /* ================= 品：词云 ================= */
@@ -385,10 +386,12 @@ async function drawCloud(words) {
   const cells = [];
   for (let gy = 0; gy < mask.ch; gy++) for (let gx = 0; gx < mask.cw; gx++)
     if (mask.grid[gy * mask.cw + gx]) cells.push([gx, gy]);
+  if (!cells.length) throw new Error('当前字形没有可用区域，请在设置中更换字形');
   const minN = words[words.length - 1].n, maxN = words[0].n;
+  const range = Math.log(maxN) - Math.log(minN);
   const placed = [];
   for (const w of words) {
-    const v = Math.max(0, Math.min(1, (Math.log(w.n) - Math.log(minN)) / (Math.log(maxN) - Math.log(minN))));
+    const v = range ? Math.max(0, Math.min(1, (Math.log(w.n) - Math.log(minN)) / range)) : .5;
     const size = Math.round(9 + v * 25);
     ctx.font = `${size}px "KaiTi","STKaiti","楷体",serif`;
     const tw = ctx.measureText(w.text).width + 2, th = size * 1.35;
@@ -417,15 +420,16 @@ async function showCloud() {
   st.textContent = '正在扫读诗集、统计词频……';
   try {
     const d = await loadPoems();
-    if (!document.getElementById('poemPick').options.length) fillPoemPicker();
+    fillPoemPicker();
     const words = (await tokenize(d.poems)).map(([text, n]) => ({ text, n }));
     if (!words.length) { st.textContent = '未读取到可统计的文本'; return; }
     await drawCloud(words);
+    setView('cloud');
     document.getElementById('wc').style.display = 'block';
     document.getElementById('card').style.display = 'none';
     document.getElementById('frameNote').textContent = `掩码 ${state.mask} · ${d.total} 首 · ${words.length} 词条`;
-    st.textContent = `数据源 ${d.source === 'obsidian' ? 'Obsidian API' : '本地直读'} · 共 ${d.total} 首 · 词条 ${words.length} 个 · 以「${state.mask.replace('.png', '')}」为形`;
-  } catch (e) { st.textContent = '加载失败：' + e.message; }
+    st.textContent = `${d.source === 'obsidian' ? 'Obsidian API' : d.source === 'import' ? '导入文件' : '本地诗集'} · 共 ${d.total} 首 · ${words.length} 个词条 · 以「${state.mask.replace('.png', '')}」为形。再次点击「品」可重新排布。`;
+  } catch { st.textContent = '暂时无法读取诗集，请导入 Markdown 文件，或在设置中检查数据源。'; }
 }
 
 /* ================= 赏 ================= */
@@ -549,19 +553,19 @@ function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(
 
 let CURRENT = null;
 
-function llmReady() { return !!(state.llm.base && state.llm.key && state.llm.model); }
+function llmReady() { return !!(state.llm.base && (state.llm.key || state.keySet) && state.llm.model); }
 
 async function askAIonCard(poem, pickedText) {
   const box = document.getElementById('aiBox');
   const btn = document.getElementById('btnAi');
-  if (!llmReady()) { statusText('请先在 ⚙ 设置中配置大模型'); return; }
+  if (!llmReady()) { statusText('请先在右上角设置中配置 AI 赏析服务。'); return; }
   if (box) box.innerHTML = '<em>正在请 ' + esc(state.llm.model) + ' 结合全诗品鉴……</em>';
   if (btn) btn.disabled = true;
   try {
     const full = (poem.lines || []).join('\n');
     const d = await api('/api/ask', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ llm: state.llm, poem: { title: poem.title, year: poem.year, theme: poem.theme, text: full, picked: pickedText } })
+      body: JSON.stringify({ ...(state.llm.key ? { llm: state.llm } : {}), poem: { title: poem.title, year: poem.year, theme: poem.theme, text: full, picked: pickedText } })
     });
     if (box) box.innerHTML = `── AI · ${esc(state.llm.model)}<br>${esc(d.text || '（无返回内容）')}`;
   } catch (e) {
@@ -578,7 +582,10 @@ function toggleFull() {
   const show = box.style.display === 'none';
   box.style.display = show ? 'block' : 'none';
   const btn = document.getElementById('btnFull');
-  if (btn) btn.textContent = show ? '收起全诗' : '查看全诗';
+  if (btn) {
+    btn.textContent = show ? '收起全诗' : '查看全诗';
+    btn.setAttribute('aria-expanded', String(show));
+  }
   if (show && !box.innerHTML) {
     const p = CURRENT.p;
     box.innerHTML = `<span class="ft-tip">《${esc(p.title)}》全文 · ${esc(p.year || '年份未定')} · ${esc(p.theme || '未分类')}</span>${esc((p.lines || []).join('\n'))}`;
@@ -589,7 +596,7 @@ function statusText(t) { document.getElementById('status').textContent = t; }
 
 /* ---- 本地文件解析（选择文件/目录后赏析） ---- */
 function parseLocalMd(text) {
-  const t = text.replace(/\r\n/g, '\n');
+  const t = text.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n');
   const m = t.match(/^---\n([\s\S]*?)\n---\n?/);
   const fm = {};
   if (m) for (const ln of m[1].split('\n')) {
@@ -607,7 +614,7 @@ function parseLocalMd(text) {
 
 function renderLocalPoem(fm, lines, stanzas, fileName, isDir) {
   const created = fm.created || '';
-  const title = fm.title || fileName.replace(/\.md$/i, '');
+  const title = fm.title || fileName.split(/[\\/]/).pop().replace(/\.md$/i, '');
   const p = {
     id: 'file|' + fileName,
     title, year: (created.match(/(20\d{2})/) || [])[1] || '',
@@ -621,9 +628,14 @@ function renderLocalPoem(fm, lines, stanzas, fileName, isDir) {
   let text;
   if (rv && rv.best_line) text = rv.best_line;
   else text = excerptCandidates(p)[0];
-  POEMS.unshift(p);
+  LOCAL_POEMS = LOCAL_POEMS.filter(item => item.id !== p.id);
+  LOCAL_POEMS.unshift(p);
+  POEMS = [p, ...(POEMS || []).filter(item => item.id !== p.id)];
+  if (!state.usedSource) state.usedSource = 'import';
+  updateCollection();
   fillPoemPicker();
   document.getElementById('poemPick').value = '0';
+  document.getElementById('poemPick').dataset.selectedId = String(p.id);
   statusText((isDir ? '目录' : '文件') + '已载入：' + fileName + '（已加入选择列表第 1 项）');
   renderCard({ p, rv, text, key: 'file|' + fileName + '|pick' });
 }
@@ -633,11 +645,16 @@ function bindFilePickers() {
   document.getElementById('filePick').addEventListener('change', async ev => {
     const files = [...ev.target.files].filter(f => /\.md$/i.test(f.name));
     if (!files.length) { statusText('未选择 .md 文件'); ev.target.value = ''; return; }
-    const f = files[0];
-    const text = await f.text();
-    const { fm, lines, stanzas } = parseLocalMd(text);
-    renderLocalPoem(fm, lines, stanzas, f.name, false);
-    ev.target.value = '';
+    try {
+      let done = 0;
+      for (const f of files) {
+        const text = await f.text();
+        const { fm, lines, stanzas } = parseLocalMd(text);
+        if (lines.length) { renderLocalPoem(fm, lines, stanzas, f.name, false); done++; }
+      }
+      statusText(done ? `已导入 ${done} 首作品，可选择阅读，或点击「品」生成词云。` : '文件中没有可赏析的诗行。');
+    } catch (e) { console.warn('Markdown 导入失败', e); statusText('文件读取失败，请重新选择 Markdown 文件。'); }
+    finally { ev.target.value = ''; }
   });
   document.getElementById('btnOpenDir').addEventListener('click', () => document.getElementById('dirPick').click());
   document.getElementById('dirPick').addEventListener('change', async ev => {
@@ -649,10 +666,10 @@ function bindFilePickers() {
       try {
         const text = await f.text();
         const { fm, lines, stanzas } = parseLocalMd(text);
-        if (lines.length) { renderLocalPoem(fm, lines, stanzas, f.name, true); done++; }
+        if (lines.length) { renderLocalPoem(fm, lines, stanzas, f.webkitRelativePath || f.name, true); done++; }
       } catch { /* 单个文件失败跳过 */ }
     }
-    statusText('目录载入完成：共解析 ' + done + ' 首（已加入选择列表）');
+    statusText(`目录载入完成：共解析 ${done} 首${files.length > 300 ? '（本次读取前 300 个文件）' : ''}，已加入诗集。`);
     ev.target.value = '';
   });
 }
@@ -665,17 +682,18 @@ function fmtDate(p) {
 
 async function renderCard(c) {
   CURRENT = c;
+  setView('verse');
   const card = document.getElementById('card');
-  let html = `<div class="verse">${esc(c.text)}</div>`;
+  let html = `<div class="card-kicker">拾 得 一 句</div><div class="verse">${esc(c.text)}</div>`;
   const formTag = c.p.form && FORMS.includes(c.p.form) ? ` · ${esc(c.p.form)}` : '';
   html += `<div class="src">《${esc(c.p.title)}》 · ${esc(fmtDate(c.p))}${formTag} · ${esc(c.p.theme || '未分类')}${c.rv && c.rv.rating ? ' · ' + esc(c.rv.rating) : ''}</div>`;
-  html += `<div class="rv">`;
+  html += `<div class="rv"><span class="rv-label">${c.rv ? '诗 文 赏 析' : '诗 意 初 读'}</span>`;
   if (c.rv) html += `${esc(c.rv.body)}<span class="rv-src">—— 收录于 wiki/赏析/${esc(c.p.title)}</span>`;
   else html += esc(buildReason(c.text, c.p));
   html += `<span class="rv-machine" id="aiBox"></span>`;
   html += `</div>`;
   html += `<div class="multi-row">`;
-  html += `<button class="mini-btn" id="btnFull" onclick="toggleFull()">查看全诗</button>`;
+  html += `<button class="mini-btn" id="btnFull" aria-expanded="false" aria-controls="fullBox" onclick="toggleFull()">查看全诗</button>`;
   html += `<button class="mini-btn" id="btnAi" onclick="askAIonCard(CURRENT.p, CURRENT.text)">AI 品鉴此诗</button>`;
   html += `</div>`;
   html += `<div class="fulltext" id="fullBox" style="display:none"></div>`;
@@ -684,7 +702,7 @@ async function renderCard(c) {
   document.getElementById('wc').style.display = 'none';
   document.getElementById('frameNote').textContent = '';
   const src = c.rv ? '已收录赏析' : '启发式赏析';
-  statusText(`第 ${PICKED.size} 首 · ${POEMS.length} 首诗中拾取 · ${src}`);
+  statusText(`从 ${POEMS.length} 首作品中拾得 · ${src} · 再赏一句，或展开全诗慢读。`);
   document.getElementById('aiBox').innerHTML = '';
   if (llmReady()) askAIonCard(c.p, c.text);
 }
@@ -701,34 +719,65 @@ function pickByIndex(idx) {
 
 function fillPoemPicker() {
   const sel = document.getElementById('poemPick');
-  sel.innerHTML = '<option value="">—— 随机拾取，或从下面选一首 ——</option>' +
+  const selectedId = sel.dataset.selectedId;
+  const hadSelection = sel.value !== '';
+  sel.innerHTML = '<option value="">从诗集中选择一首</option>' +
     POEMS.map((p, i) => `<option value="${i}">${esc(p.title)} · ${esc(fmtDate(p).replace(/（.*?）/, ''))} · ${esc(p.theme || '未分类')}</option>`).join('');
-  sel.addEventListener('change', () => {
-    const v = sel.value;
-    if (v === '') return;
-    const c = pickByIndex(+v);
-    if (c && !CURRENT || c && CURRENT.key !== c.key) PICKED.clear();
-    if (c) renderCard(c);
-  });
+  if (hadSelection) {
+    const selectedIndex = POEMS.findIndex(p => String(p.id) === selectedId);
+    sel.value = selectedIndex >= 0 ? String(selectedIndex) : '';
+  }
 }
+
+document.getElementById('poemPick').addEventListener('change', ev => {
+  if (ev.target.value === '') return;
+  const c = pickByIndex(+ev.target.value);
+  if (c) ev.target.dataset.selectedId = String(c.p.id);
+  if (c && (!CURRENT || CURRENT.key !== c.key)) PICKED.clear();
+  if (c) renderCard(c);
+});
 
 async function showVerse() {
   const st = document.getElementById('status');
   try {
-    if (!POEMS) {
+    if (!POEMS || !POEMS.length) {
       await loadPoems();
       fillPoemPicker();
     }
     const { reviewed, others } = buildCandidates();
     let c = pickOne(reviewed) || pickOne(others);
-    if (!c) { st.textContent = '暂无可赏的作品'; return; }
+    if (!c) { st.textContent = '诗集里暂时没有作品。导入一首诗，开启阅读。'; return; }
     await renderCard(c);
-  } catch (e) { st.textContent = '加载失败：' + e.message; }
+  } catch { st.textContent = '暂时无法读取诗集。请导入 Markdown 文件，或在设置中检查数据源。'; }
 }
 
 /* ================= 设置 ================= */
-document.getElementById('btnGear').addEventListener('click', () => document.getElementById('sheet').classList.add('open'));
-document.getElementById('cfgCancel').addEventListener('click', () => document.getElementById('sheet').classList.remove('open'));
+let settingsTrigger = null;
+function openSettings() {
+  settingsTrigger = document.activeElement;
+  document.getElementById('sheet').classList.add('open');
+  document.body.classList.add('modal-open');
+  document.getElementById('appShell').inert = true;
+  document.getElementById('cfgSource').focus();
+}
+function closeSettings() {
+  document.getElementById('sheet').classList.remove('open');
+  document.body.classList.remove('modal-open');
+  document.getElementById('appShell').inert = false;
+  settingsTrigger?.focus();
+}
+document.getElementById('btnGear').addEventListener('click', openSettings);
+document.getElementById('cfgCancel').addEventListener('click', closeSettings);
+document.getElementById('cfgClose').addEventListener('click', closeSettings);
+document.getElementById('sheet').addEventListener('click', ev => { if (ev.target.id === 'sheet') closeSettings(); });
+document.getElementById('sheet').addEventListener('keydown', ev => {
+  if (ev.key === 'Escape') { closeSettings(); return; }
+  if (ev.key !== 'Tab') return;
+  const controls = [...document.querySelectorAll('.sheet-panel button, .sheet-panel input, .sheet-panel select')].filter(el => !el.disabled);
+  const first = controls[0], last = controls[controls.length - 1];
+  if (ev.shiftKey && document.activeElement === first) { ev.preventDefault(); last.focus(); }
+  else if (!ev.shiftKey && document.activeElement === last) { ev.preventDefault(); first.focus(); }
+});
 document.getElementById('cfgSave').addEventListener('click', async () => {
   const tip = document.getElementById('cfgTip');
   state.source = document.getElementById('cfgSource').value;
@@ -739,18 +788,35 @@ document.getElementById('cfgSave').addEventListener('click', async () => {
     key: document.getElementById('cfgKey').value.trim(),
     model: document.getElementById('cfgModel').value.trim()
   };
+  const llm = { ...state.llm };
+  if (!llm.key) delete llm.key;
+  const save = document.getElementById('cfgSave');
+  save.disabled = true;
+  tip.textContent = '正在保存……';
   try {
     await api('/api/config', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ source: state.source, author: state.author, llm: state.llm })
+      body: JSON.stringify({ source: state.source, author: state.author, llm })
     });
+    state.keySet = !!state.llm.key || state.keySet;
+    document.getElementById('cfgKey').value = '';
+    state.llm.key = '';
+    document.getElementById('cfgKey').placeholder = state.keySet ? '已保存 Key，留空保留' : 'API Key';
+    try { await loadPoems(); fillPoemPicker(); }
+    catch { updateCollection(); }
     tip.textContent = '已保存 ✓';
-    setTimeout(() => document.getElementById('sheet').classList.remove('open'), 700);
+    closeSettings();
   } catch (e) { tip.textContent = '保存失败：' + e.message; }
+  finally { save.disabled = false; }
 });
 
-document.getElementById('btnPin').addEventListener('click', showCloud);
-document.getElementById('btnApp').addEventListener('click', () => showVerse());
+document.getElementById('btnPin').addEventListener('click', () => runView(showCloud));
+document.getElementById('btnApp').addEventListener('click', () => runView(showVerse));
+document.getElementById('btnRandom').addEventListener('click', () => runView(showVerse));
+document.getElementById('btnBegin').addEventListener('click', () => {
+  if (POEMS?.length) runView(showCloud);
+  else document.getElementById('filePick').click();
+});
 bindFilePickers();
 init();
 </script>
